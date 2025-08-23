@@ -1,0 +1,9 @@
+{
+  "network": "testnet",
+  "algod_address": "http://localhost:4001",
+  "algod_token": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "test_accounts": 10,
+  "test_transactions": 1000,
+  "performance_test_duration": 300,
+  "target_tps": 1000
+}

@@ -1,0 +1,29 @@
+{
+  "timestamp": "2025-08-23T05:45:46.842850",
+  "sdupi_metrics": {
+    "tps": 53906,
+    "latency_ms": 7.35,
+    "cost_usd": 0.0001,
+    "finality_ms": 10
+  },
+  "algorand_metrics": {
+    "tps": 1200,
+    "latency_ms": 4500,
+    "cost_usd": 0.00025,
+    "finality_ms": 4500,
+    "test_timestamp": "2025-08-23T05:45:46.842800"
+  },
+  "comparison": {
+    "tps_advantage": "SDUPI",
+    "tps_ratio": 44.92166666666667,
+    "latency_advantage": "SDUPI",
+    "latency_ratio": 612.2448979591837,
+    "cost_advantage": "SDUPI",
+    "cost_ratio": 2.5
+  },
+  "summary": {
+    "sdupi_wins": 3,
+    "algorand_wins": 0,
+    "total_metrics": 4
+  }
+}

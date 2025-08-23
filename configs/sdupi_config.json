@@ -1,0 +1,36 @@
+{
+  "blockchain": {
+    "name": "SDUPI",
+    "version": "1.0.0",
+    "network_id": "mainnet",
+    "consensus": "hybrid",
+    "target_tps": 50000,
+    "target_latency_ms": 10
+  },
+  "dag": {
+    "parallel_workers": 64,
+    "max_tips": 10000,
+    "batch_size": 50000,
+    "memory_pool_size": 100000,
+    "enable_gpu": true,
+    "enable_predictive_caching": true
+  },
+  "consensus": {
+    "algorithm": "hybrid",
+    "min_stake": 1000000,
+    "round_duration_ms": 5,
+    "max_faulty_nodes": 33
+  },
+  "network": {
+    "port": 8080,
+    "max_peers": 100,
+    "enable_p2p": true,
+    "enable_gossip": true
+  },
+  "tokenomics": {
+    "total_supply": 100000000000,
+    "staking_rewards": 0.15,
+    "transaction_fee": 0.001,
+    "gas_price": 0.0001
+  }
+}

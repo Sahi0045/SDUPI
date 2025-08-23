@@ -1,0 +1,10 @@
+{
+    "prometheus_port": 9090,
+    "grafana_port": 3001,
+    "alerting_enabled": true,
+    "log_aggregation": true,
+    "metrics_endpoints": [
+        "http://localhost:8550/metrics",
+        "http://localhost:3000/metrics"
+    ]
+}

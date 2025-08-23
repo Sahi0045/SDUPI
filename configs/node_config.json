@@ -1,0 +1,27 @@
+{
+  "node": {
+    "id": "genesis-node-1",
+    "type": "validator",
+    "stake": 10000000
+  },
+  "network": {
+    "listenPort": 30303,
+    "rpcPort": 8080,
+    "validatorPort": 8081,
+    "websocketPort": 8082,
+    "bootNodes": [],
+    "maxPeers": 100
+  },
+  "consensus": {
+    "algorithm": "Hybrid",
+    "minStake": 1000000,
+    "roundDuration": 5,
+    "batchSize": 10000,
+    "parallelWorkers": 8
+  },
+  "storage": {
+    "dataDir": "./sdupi_data",
+    "dbType": "leveldb",
+    "pruning": false
+  }
+}

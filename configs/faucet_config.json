@@ -1,0 +1,7 @@
+{
+    "endpoint": "http://localhost:8082",
+    "daily_limit": 1000000,
+    "per_request_limit": 100,
+    "enabled": true,
+    "wallet_address": "0x0000000000000000000000000000000000000000"
+}

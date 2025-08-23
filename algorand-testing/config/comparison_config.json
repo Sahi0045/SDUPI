@@ -1,0 +1,26 @@
+{
+  "comparison_metrics": {
+    "tps": true,
+    "latency": true,
+    "cost": true,
+    "finality": true
+  },
+  "sdupi_baseline": {
+    "tps": 53906,
+    "latency_ms": 7.35,
+    "cost_usd": 0.0001,
+    "finality_ms": 10
+  },
+  "test_scenarios": [
+    {
+      "name": "basic_transfer",
+      "transactions": 100,
+      "description": "Simple ALGO transfer"
+    },
+    {
+      "name": "high_frequency",
+      "transactions": 1000,
+      "description": "High-frequency trading simulation"
+    }
+  ]
+}

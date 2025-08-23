@@ -1,0 +1,31 @@
+{
+  "networkId": "sdupi-mainnet",
+  "chainId": 2025,
+  "consensus": {
+    "algorithm": "Hybrid",
+    "blockTime": 5,
+    "validators": [
+      {
+        "address": "0x1234567890123456789012345678901234567890",
+        "stake": 10000000,
+        "publicKey": "genesis-validator-key"
+      }
+    ]
+  },
+  "genesis": {
+    "timestamp": 1755905552,
+    "difficulty": 1000000,
+    "gasLimit": 30000000,
+    "alloc": {
+      "0x1234567890123456789012345678901234567890": {
+        "balance": "100000000000000000000000000000"
+      }
+    }
+  },
+  "performance": {
+    "targetTPS": 50000,
+    "targetLatency": 5,
+    "batchSize": 10000,
+    "parallelWorkers": 16
+  }
+}

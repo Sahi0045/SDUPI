@@ -1,0 +1,63 @@
+[package]
+name = "sdupi-core"
+version = "0.1.0"
+edition = "2021"
+authors = ["SDUPI Team"]
+description = "Core DAG implementation for SDUPI blockchain"
+
+[dependencies]
+# Core dependencies
+tokio = { version = "1.0", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+uuid = { version = "1.0", features = ["v4", "serde"] }
+
+# Cryptography
+sha2 = "0.10"
+ed25519-dalek = "2.0"
+rand = "0.8"
+getrandom = { version = "0.2", features = ["js"] }
+
+# Networking
+libp2p = { version = "0.52", features = ["tokio", "tcp", "noise", "macros"] }
+libp2p-swarm = "0.42"
+libp2p-core = "0.42"
+
+# Database
+sled = "0.34"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Async runtime
+async-trait = "0.1"
+futures = "0.3"
+
+# Error handling
+thiserror = "1.0"
+anyhow = "1.0"
+
+# Time handling
+chrono = { version = "0.4", features = ["serde"] }
+
+# Serialization
+bincode = "1.3"
+
+# CLI
+clap = { version = "3.2", features = ["derive"] }
+
+# Utilities
+hex = "0.4"
+
+# Performance optimizations
+rayon = "1.7"  # Parallel processing
+dashmap = "5.4"  # Concurrent HashMap
+crossbeam = "0.8"  # Concurrent data structures
+parking_lot = "0.12"  # Fast locks
+fastrand = "2.0"  # Fast random number generation
+
+[dev-dependencies]
+criterion = "0.5"
+tokio-test = "0.4"
+tempfile = "3.2"

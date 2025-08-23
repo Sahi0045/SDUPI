@@ -1,0 +1,66 @@
+{
+    "network_name": "SDUPI Testnet",
+    "chain_id": 1337,
+    "deployment_region": "global",
+    "min_validators": 3,
+    "consensus_threshold": 0.67,
+    "genesis_validators": [
+        {
+            "id": "validator-1",
+            "name": "Genesis Validator 1",
+            "endpoint": "https://validator1.testnet.sdupi.com",
+            "region": "us-east-1",
+            "stake_amount": 1000000,
+            "is_genesis": true
+        },
+        {
+            "id": "validator-2",
+            "name": "Genesis Validator 2",
+            "endpoint": "https://validator2.testnet.sdupi.com",
+            "region": "us-west-1",
+            "stake_amount": 1000000,
+            "is_genesis": true
+        },
+        {
+            "id": "validator-3",
+            "name": "Genesis Validator 3",
+            "endpoint": "https://validator3.testnet.sdupi.com",
+            "region": "eu-west-1",
+            "stake_amount": 1000000,
+            "is_genesis": true
+        }
+    ],
+    "rpc_endpoints": [
+        {
+            "endpoint": "https://rpc.testnet.sdupi.com",
+            "port": 8545,
+            "max_connections": 1000,
+            "rate_limit": 100
+        },
+        {
+            "endpoint": "https://ws.testnet.sdupi.com",
+            "port": 8546,
+            "max_connections": 500,
+            "rate_limit": 50
+        }
+    ],
+    "block_explorer": {
+        "url": "https://explorer.testnet.sdupi.com",
+        "api_endpoint": "https://api.explorer.testnet.sdupi.com",
+        "websocket_endpoint": "wss://ws.explorer.testnet.sdupi.com",
+        "indexing_enabled": true,
+        "search_enabled": true
+    },
+    "monitoring": {
+        "prometheus_endpoint": "https://metrics.testnet.sdupi.com",
+        "grafana_dashboard": "https://dashboard.testnet.sdupi.com",
+        "alerting_enabled": true,
+        "log_aggregation": "https://logs.testnet.sdupi.com"
+    },
+    "token_faucet": {
+        "endpoint": "https://faucet.testnet.sdupi.com",
+        "daily_limit": 1000000,
+        "per_request_limit": 100,
+        "enabled": true
+    }
+}

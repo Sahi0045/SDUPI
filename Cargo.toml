@@ -1,0 +1,74 @@
+[package]
+name = "sdupi-smart-contract-engine"
+version = "0.1.0"
+edition = "2021"
+authors = ["SDUPI Team"]
+description = "Advanced Rust Smart Contract Engine with AI optimization, quantum-safe cryptography, and cross-chain bridges"
+
+[dependencies]
+# Core dependencies
+tokio = { version = "1.0", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+uuid = { version = "1.0", features = ["v4"] }
+
+# WASM execution engine
+wasmtime = "12.0"
+wasmtime-wasi = "12.0"
+wasmtime-component-model = "12.0"
+
+# AI and machine learning
+tch = "0.13"  # PyTorch bindings
+rust-bert = "0.20"  # BERT models for AI optimization
+
+# Quantum-safe cryptography
+pqcrypto = "0.5"
+dilithium = "0.3"
+kyber = "0.3"
+
+# Cross-chain bridges
+web3 = "0.19"
+solana-client = "1.16"
+polkadot-api-client = "0.2"
+
+# Parallel execution
+rayon = "1.7"
+crossbeam = "0.8"
+dashmap = "5.4"
+
+# Database and storage
+sled = "0.34"
+rocksdb = "0.21"
+
+# Networking
+libp2p = "0.52"
+tokio-tungstenite = "0.20"
+
+# Logging and monitoring
+tracing = "0.1"
+tracing-subscriber = "0.3"
+metrics = "0.21"
+
+# Testing
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[dev-dependencies]
+tokio-test = "0.4"
+mockall = "0.11"
+
+[features]
+default = ["ai-optimization", "quantum-safe", "cross-chain", "parallel-execution"]
+ai-optimization = ["tch", "rust-bert"]
+quantum-safe = ["pqcrypto", "dilithium", "kyber"]
+cross-chain = ["web3", "solana-client", "polkadot-api-client"]
+parallel-execution = ["rayon", "crossbeam", "dashmap"]
+
+[[bench]]
+name = "contract_execution_benchmarks"
+harness = false
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"

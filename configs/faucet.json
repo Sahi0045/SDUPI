@@ -1,0 +1,12 @@
+{
+  "enabled": true,
+  "endpoint": "http://localhost:3001/api/faucet",
+  "daily_limit": 1000000000000000000000,
+  "per_request_limit": 100000000000000000000,
+  "token_symbol": "SDUPI",
+  "token_decimals": 18,
+  "rate_limit": {
+    "window_ms": 3600000,
+    "max_requests": 10
+  }
+}
