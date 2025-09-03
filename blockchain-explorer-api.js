@@ -534,13 +534,13 @@ class SDUPIBlockchainExplorer {
     addrInfo.lastSeen = transaction.timestamp;
     
     if (transaction.to.toLowerCase() === addr) {
-      addrInfo.totalReceived = ethers.add(addrInfo.totalReceived, transaction.value);
-      addrInfo.balance = ethers.add(addrInfo.balance, transaction.value);
+      addrInfo.totalReceived = (BigInt(addrInfo.totalReceived) + BigInt(transaction.value)).toString();
+      addrInfo.balance = (BigInt(addrInfo.balance) + BigInt(transaction.value)).toString();
     }
     
     if (transaction.from.toLowerCase() === addr) {
-      addrInfo.totalSent = ethers.add(addrInfo.totalSent, transaction.value);
-      addrInfo.balance = ethers.sub(addrInfo.balance, transaction.value);
+      addrInfo.totalSent = (BigInt(addrInfo.totalSent) + BigInt(transaction.value)).toString();
+      addrInfo.balance = (BigInt(addrInfo.balance) - BigInt(transaction.value)).toString();
     }
   }
 

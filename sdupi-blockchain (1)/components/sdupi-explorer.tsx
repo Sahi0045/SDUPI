@@ -29,7 +29,10 @@ import {
   BarChart3,
   RefreshCw
 } from 'lucide-react';
-import useSDUPIBlockchain from '@/hooks/useSDUPIBlockchain';
+import { useSDUPIBlockchain } from '@/hooks/useSDUPIBlockchain';
+import { WalletConnectModal } from './wallet-connect-modal';
+import { SDUPIFaucet } from './sdupi-faucet';
+import { TransactionForm } from './transaction-form';
 
 export const SDUPIExplorer: React.FC = () => {
   const { 
@@ -37,17 +40,26 @@ export const SDUPIExplorer: React.FC = () => {
     getLatestBlocks, 
     getLatestTransactions, 
     getMempoolData,
-    refreshData 
+    refreshData,
+    isConnected,
+    currentAccount,
+    sdupiBalance
   } = useSDUPIBlockchain();
   
   const [searchQuery, setSearchQuery] = useState('');
   const [searchType, setSearchType] = useState<'block' | 'transaction' | 'address'>('transaction');
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Get real-time data
+  // Get real-time data - these will be reactive to state changes
   const latestBlocks = getLatestBlocks();
   const latestTransactions = getLatestTransactions();
   const mempoolData = getMempoolData();
+  
+  // Debug logging to see what data we're getting
+  console.log('🔍 Explorer Component - networkStats:', networkStats);
+  console.log('🔍 Explorer Component - latestBlocks:', latestBlocks);
+  console.log('🔍 Explorer Component - latestTransactions:', latestTransactions);
+  console.log('🔍 Explorer Component - mempoolData:', mempoolData);
 
   // Handle search
   const handleSearch = () => {
@@ -91,13 +103,26 @@ export const SDUPIExplorer: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold">SDUPI Blockchain Explorer</h1>
-          <p className="text-muted-foreground">
-            Real-time blockchain data and network monitoring
+          <h1 className="text-4xl font-bold">SDUPI Blockchain Explorer</h1>
+          <p className="text-muted-foreground mt-2">
+            Real-time blockchain data and network statistics
           </p>
         </div>
+        <div className="flex items-center gap-4">
+          {isConnected && (
+            <div className="text-right">
+              <p className="text-sm text-muted-foreground">Connected Wallet</p>
+              <p className="font-mono text-sm">{formatAddress(currentAccount || '')}</p>
+              <p className="text-xs text-muted-foreground">
+                Balance: {parseFloat(sdupiBalance || '0').toLocaleString()} SDUPI
+              </p>
+            </div>
+          )}
+          <WalletConnectModal />
+        </div>
+              </div>
         <Button onClick={handleRefresh} disabled={isRefreshing}>
           <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
           Refresh
@@ -140,6 +165,85 @@ export const SDUPIExplorer: React.FC = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Main Overview Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                <Blocks className="h-5 w-5 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Total Blocks</p>
+                <p className="text-2xl font-bold">
+                  {networkStats?.blockHeight.toLocaleString() || '0'}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Latest: #{networkStats?.blockHeight || 0}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                <Activity className="h-5 w-5 text-green-600" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Total Transactions</p>
+                <p className="text-2xl font-bold">
+                  {networkStats?.totalTransactions.toLocaleString() || '0'}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {networkStats?.tps.toLocaleString() || '0'} TPS
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
+                <Users className="h-5 w-5 text-purple-600" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Total Addresses</p>
+                <p className="text-2xl font-bold">
+                  {networkStats?.activeWallets.toLocaleString() || '0'}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {networkStats?.activeWallets || 0} contracts
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-orange-100 flex items-center justify-center">
+                <Zap className="h-5 w-5 text-orange-600" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Mempool</p>
+                <p className="text-2xl font-bold">
+                  {mempoolData?.pendingCount.toLocaleString() || '0'}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Pending transactions
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Network Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -243,6 +347,112 @@ export const SDUPIExplorer: React.FC = () => {
         </CardContent>
       </Card>
 
+      {/* Latest Blocks Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Blocks className="h-5 w-5" />
+            Latest Blocks
+          </CardTitle>
+          <CardDescription>Most recently mined blocks</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {latestBlocks.length > 0 ? (
+              latestBlocks.map((block, index) => (
+                <div key={index} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+                  <div className="flex items-center gap-4">
+                    <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                      <Blocks className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <p className="font-mono font-bold">#{block.height}</p>
+                        <Badge variant="secondary">{block.transactions} txs</Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground font-mono">
+                        {formatHash(block.hash)}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Mined by {formatAddress(block.miner)} • {formatTimestamp(block.timestamp)}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right text-sm">
+                    <p className="font-medium">{block.size}</p>
+                    <p className="text-muted-foreground">
+                      Gas: {block.gasUsed} / {block.gasLimit}
+                    </p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <p>Loading blocks...</p>
+              </div>
+            )}
+          </div>
+          <div className="mt-4 text-center">
+            <Button variant="outline">View All Blocks</Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Latest Transactions Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Activity className="h-5 w-5" />
+            Latest Transactions
+          </CardTitle>
+          <CardDescription>Most recent transactions</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {latestTransactions.length > 0 ? (
+              latestTransactions.map((tx, index) => (
+                <div key={index} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+                  <div className="flex items-center gap-4">
+                    <div className={`h-12 w-12 rounded-full flex items-center justify-center ${
+                      tx.status === 'confirmed' ? 'bg-green-100 text-green-600' :
+                      tx.status === 'pending' ? 'bg-yellow-100 text-yellow-600' :
+                      'bg-red-100 text-red-600'
+                    }`}>
+                      {tx.status === 'confirmed' ? '✓' : tx.status === 'pending' ? '⏳' : '✗'}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <p className="font-mono text-sm">{formatHash(tx.hash)}</p>
+                        <Badge variant={tx.status === 'confirmed' ? 'default' : 'secondary'}>
+                          {tx.status}
+                        </Badge>
+                      </div>
+                      <p className="text-sm">
+                        {formatAddress(tx.from)} → {formatAddress(tx.to)}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {tx.block ? `Block #${tx.block}` : 'Pending'} • {formatTimestamp(tx.timestamp)}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium">{tx.value} SDUPI</p>
+                    <p className="text-sm text-muted-foreground">Gas: {tx.gas || '21,000'}</p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <p>Loading transactions...</p>
+              </div>
+            )}
+          </div>
+          <div className="mt-4 text-center">
+            <Button variant="outline">View All Transactions</Button>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Mempool Status */}
       {mempoolData && (
         <Card>
@@ -280,9 +490,11 @@ export const SDUPIExplorer: React.FC = () => {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="blocks" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="blocks">Latest Blocks</TabsTrigger>
               <TabsTrigger value="transactions">Recent Transactions</TabsTrigger>
+              <TabsTrigger value="faucet">Token Faucet</TabsTrigger>
+              <TabsTrigger value="send">Send Tokens</TabsTrigger>
               <TabsTrigger value="network">Network Stats</TabsTrigger>
             </TabsList>
 
@@ -366,6 +578,16 @@ export const SDUPIExplorer: React.FC = () => {
                   </div>
                 )}
               </div>
+            </TabsContent>
+
+            {/* Faucet Tab */}
+            <TabsContent value="faucet" className="space-y-4">
+              <SDUPIFaucet />
+            </TabsContent>
+
+            {/* Send Tokens Tab */}
+            <TabsContent value="send" className="space-y-4">
+              <TransactionForm />
             </TabsContent>
 
             {/* Network Tab */}

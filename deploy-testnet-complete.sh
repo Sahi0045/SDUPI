@@ -15,7 +15,7 @@ CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 # Configuration
-SDUPI_HOME="/home/cursor/Desktop/SDUPI"
+SDUPI_HOME="$(pwd)"
 EXPLORER_PORT=3001
 FRONTEND_PORT=3000
 RPC_PORT=8545

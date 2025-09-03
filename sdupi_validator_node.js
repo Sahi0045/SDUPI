@@ -401,6 +401,60 @@ class SDUPIValidatorNode {
       });
     });
     
+    // Minimal smart contract deploy endpoint (enqueue as special transaction)
+    app.post('/api/contract/deploy', (req, res) => {
+      const { owner, name, code, initialState } = req.body || {};
+      if (!owner || !name || !code) {
+        return res.status(400).json({ error: 'Missing required fields: owner, name, code' });
+      }
+
+      const contractId = crypto.createHash('sha256').update(`${name}:${Date.now()}`).digest('hex').slice(0, 40);
+      const contractTx = {
+        type: 'contract',
+        action: 'deploy',
+        owner,
+        name,
+        code,
+        initialState: initialState || {},
+        contractId
+      };
+
+      contractTx.hash = crypto.createHash('sha256').update(JSON.stringify(contractTx)).digest('hex');
+      contractTx.timestamp = Date.now();
+
+      this.pendingTransactions.push(contractTx);
+
+      console.log(`📜 Contract deploy enqueued: ${name} (${contractId})`);
+
+      res.json({ success: true, contractId, transactionHash: contractTx.hash, pendingTransactions: this.pendingTransactions.length });
+    });
+
+    // Minimal smart contract execute endpoint (enqueue as special transaction)
+    app.post('/api/contract/execute', (req, res) => {
+      const { caller, contractId, method, params } = req.body || {};
+      if (!caller || !contractId || !method) {
+        return res.status(400).json({ error: 'Missing required fields: caller, contractId, method' });
+      }
+
+      const execTx = {
+        type: 'contract',
+        action: 'execute',
+        caller,
+        contractId,
+        method,
+        params: params || {}
+      };
+
+      execTx.hash = crypto.createHash('sha256').update(JSON.stringify(execTx)).digest('hex');
+      execTx.timestamp = Date.now();
+
+      this.pendingTransactions.push(execTx);
+
+      console.log(`⚙️ Contract execution enqueued: ${contractId} :: ${method}`);
+
+      res.json({ success: true, transactionHash: execTx.hash, pendingTransactions: this.pendingTransactions.length });
+    });
+    
     // Get network stats
     app.get('/api/stats', (req, res) => {
       const now = Date.now();

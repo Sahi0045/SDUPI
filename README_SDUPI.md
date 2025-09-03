@@ -73,3 +73,27 @@ For issues and questions:
 ## 🎉 Welcome to the Future of Finance!
 
 SDUPI is not just another blockchain - it's the foundation for the next generation of decentralized finance.
+
+## Quick start: On-ramp, Validator, Contracts
+
+1) Start a validator node
+
+```bash
+node sdupi_validator_node.js --validator --id validator-1 --rpc-port 8545 --port 3001
+```
+
+2) Start the on-ramp faucet
+
+```bash
+bash scripts/start_onramp.sh
+```
+
+3) Deploy and execute a sample contract
+
+```bash
+SDUPI_RPC=http://localhost:8545 node scripts/deploy_sample_contract.js
+```
+
+Faucet endpoints:
+- GET http://localhost:8082/faucet/status
+- POST http://localhost:8082/faucet/request { "address": "<addr>", "amount": 100 }

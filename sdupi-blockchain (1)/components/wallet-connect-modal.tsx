@@ -1,187 +1,253 @@
-"use client"
+"use client";
 
-import type React from "react"
-
-import { useState, useEffect } from "react"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { Wallet, Smartphone, HardDrive, Globe, CheckCircle, AlertCircle, Shield, Zap } from "lucide-react"
-import useSDUPIBlockchain from "@/hooks/useSDUPIBlockchain"
-import { WalletType } from "@/lib/sdupi-blockchain"
+import React, { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Wallet, Shield, Zap, Globe, AlertCircle, CheckCircle } from 'lucide-react';
+import { useSDUPIBlockchain } from '@/hooks/useSDUPIBlockchain';
 
 interface WalletOption {
-  id: WalletType
-  name: string
-  icon: React.ReactNode
-  description: string
-  status: "available" | "unavailable" | "coming-soon"
+  id: string;
+  name: string;
+  description: string;
+  icon: React.ReactNode;
+  isAvailable: boolean;
+  connect: () => Promise<void>;
 }
 
-interface WalletConnectModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onConnect: (walletId: string) => void
-}
-
-export function WalletConnectModal({ open, onOpenChange, onConnect }: WalletConnectModalProps) {
-  const [connecting, setConnecting] = useState<string | null>(null)
-  const { blockchain } = useSDUPIBlockchain()
-
-  // Get available wallet providers
-  const availableProviders = blockchain.getAvailableWalletProviders()
+export function WalletConnectModal() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  
+  const { 
+    connectWallet, 
+    disconnectWallet, 
+    isConnected, 
+    currentAccount, 
+    sdupiBalance 
+  } = useSDUPIBlockchain();
 
   const walletOptions: WalletOption[] = [
     {
-      id: WalletType.METAMASK,
-      name: "MetaMask",
+      id: 'metamask',
+      name: 'MetaMask',
+      description: 'Connect with MetaMask wallet',
       icon: <Wallet className="w-6 h-6" />,
-      description: "Connect using MetaMask browser extension",
-      status: availableProviders.some(p => p.id === WalletType.METAMASK) ? "available" : "unavailable",
+      isAvailable: true,
+             connect: async () => {
+         try {
+           setIsConnecting(true);
+           setError(null);
+           await connectWallet();
+           setSuccess('MetaMask connected successfully!');
+           setTimeout(() => setIsOpen(false), 1500);
+         } catch (err) {
+           setError('Failed to connect MetaMask. Please make sure MetaMask is installed.');
+         } finally {
+           setIsConnecting(false);
+         }
+       }
     },
     {
-      id: WalletType.PHANTOM,
-      name: "Phantom",
+      id: 'phantom',
+      name: 'Phantom',
+      description: 'Connect with Phantom wallet',
       icon: <Shield className="w-6 h-6" />,
-      description: "Connect using Phantom wallet",
-      status: availableProviders.some(p => p.id === WalletType.PHANTOM) ? "available" : "unavailable",
+      isAvailable: true,
+             connect: async () => {
+         try {
+           setIsConnecting(true);
+           setError(null);
+           await connectWallet();
+           setSuccess('Phantom connected successfully!');
+           setTimeout(() => setIsOpen(false), 1500);
+         } catch (err) {
+           setError('Failed to connect Phantom. Please make sure Phantom is installed.');
+         } finally {
+           setIsConnecting(false);
+         }
+       }
     },
     {
-      id: WalletType.BRAVE,
-      name: "Brave Wallet",
+      id: 'brave',
+      name: 'Brave Wallet',
+      description: 'Connect with Brave wallet',
       icon: <Zap className="w-6 h-6" />,
-      description: "Connect using Brave browser wallet",
-      status: availableProviders.some(p => p.id === WalletType.BRAVE) ? "available" : "unavailable",
+      isAvailable: true,
+             connect: async () => {
+         try {
+           setIsConnecting(true);
+           setError(null);
+           await connectWallet();
+           setSuccess('Brave Wallet connected successfully!');
+           setTimeout(() => setIsOpen(false), 1500);
+         } catch (err) {
+           setError('Failed to connect Brave Wallet. Please make sure Brave Wallet is installed.');
+         } finally {
+           setIsConnecting(false);
+         }
+       }
     },
     {
-      id: WalletType.SDUPI_NATIVE,
-      name: "SDUPI Wallet",
+      id: 'walletconnect',
+      name: 'WalletConnect',
+      description: 'Connect with any wallet via QR code',
       icon: <Globe className="w-6 h-6" />,
-      description: "Use built-in SDUPI wallet (demo mode)",
-      status: "available",
-    },
-    {
-      id: WalletType.WALLETCONNECT,
-      name: "WalletConnect",
-      icon: <Smartphone className="w-6 h-6" />,
-      description: "Connect using mobile wallet apps",
-      status: "coming-soon",
-    },
-    {
-      id: WalletType.LEDGER,
-      name: "Ledger",
-      icon: <HardDrive className="w-6 h-6" />,
-      description: "Connect using Ledger hardware wallet",
-      status: "coming-soon",
-    },
-  ]
+      isAvailable: true,
+             connect: async () => {
+         try {
+           setIsConnecting(true);
+           setError(null);
+           await connectWallet();
+           setSuccess('WalletConnect initiated! Please scan the QR code.');
+         } catch (err) {
+           setError('Failed to initiate WalletConnect.');
+         } finally {
+           setIsConnecting(false);
+         }
+       }
+    }
+  ];
 
-  const handleConnect = async (walletId: WalletType) => {
-    setConnecting(walletId)
-
+  const handleDisconnect = async () => {
     try {
-      if (walletId === WalletType.SDUPI_NATIVE) {
-        // Demo mode - simulate connection
-        await new Promise((resolve) => setTimeout(resolve, 1000))
-        onConnect(walletId)
-      } else if (availableProviders.some(p => p.id === walletId)) {
-        // Connect to real wallet
-        await blockchain.connectWalletType(walletId)
-        onConnect(walletId)
-      } else {
-        throw new Error("Wallet connection not implemented yet")
-      }
-      
-      setConnecting(null)
-      onOpenChange(false)
-    } catch (error) {
-      console.error("Failed to connect wallet:", error)
-      setConnecting(null)
-      // Don't close modal on error so user can try again
+      await disconnectWallet();
+      setSuccess('Wallet disconnected successfully!');
+    } catch (err) {
+      setError('Failed to disconnect wallet.');
     }
-  }
+  };
 
-  const getStatusIcon = (status: WalletOption["status"]) => {
-    switch (status) {
-      case "available":
-        return <CheckCircle className="w-4 h-4 text-green-500" />
-      case "unavailable":
-        return <AlertCircle className="w-4 h-4 text-red-500" />
-      case "coming-soon":
-        return <AlertCircle className="w-4 h-4 text-yellow-500" />
-      default:
-        return <AlertCircle className="w-4 h-4 text-gray-500" />
-    }
-  }
+  const formatAddress = (address: string) => {
+    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
 
-  const getStatusText = (status: WalletOption["status"]) => {
-    switch (status) {
-      case "available":
-        return "Available"
-      case "unavailable":
-        return "Not Available"
-      case "coming-soon":
-        return "Coming Soon"
-      default:
-        return "Unknown"
-    }
-  }
+  const formatBalance = (balance: string) => {
+    const num = parseFloat(balance);
+    if (num >= 1e9) return `${(num / 1e9).toFixed(2)}B SDUPI`;
+    if (num >= 1e6) return `${(num / 1e6).toFixed(2)}M SDUPI`;
+    if (num >= 1e3) return `${(num / 1e3).toFixed(2)}K SDUPI`;
+    return `${num.toFixed(2)} SDUPI`;
+  };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        {isConnected ? (
+          <Button variant="outline" className="gap-2">
+            <Wallet className="w-4 h-4" />
+            {formatAddress(currentAccount || '')}
+            <Badge variant="secondary" className="ml-2">
+              {formatBalance(sdupiBalance || '0')}
+            </Badge>
+          </Button>
+        ) : (
+          <Button className="gap-2">
+            <Wallet className="w-4 h-4" />
+            Connect Wallet
+          </Button>
+        )}
+      </DialogTrigger>
+      
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Connect Wallet</DialogTitle>
-          <DialogDescription>
-            Choose your preferred wallet to connect to SDUPI Blockchain
-          </DialogDescription>
+          <DialogTitle className="flex items-center gap-2">
+            <Wallet className="w-5 h-5" />
+            {isConnected ? 'Wallet Connected' : 'Connect Your Wallet'}
+          </DialogTitle>
         </DialogHeader>
-        
-        <div className="grid gap-4">
-          {walletOptions.map((wallet) => (
-            <Card key={wallet.id} className="cursor-pointer hover:bg-accent/50 transition-colors">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-primary/10 rounded-lg">
-                      {wallet.icon}
-                    </div>
-                    <div>
-                      <h3 className="font-semibold">{wallet.name}</h3>
-                      <p className="text-sm text-muted-foreground">{wallet.description}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <Badge variant={wallet.status === "available" ? "default" : "secondary"}>
-                      {getStatusText(wallet.status)}
-                    </Badge>
-                    {getStatusIcon(wallet.status)}
-                  </div>
+
+        {isConnected ? (
+          <div className="space-y-4">
+            <Card>
+              <CardHeader className="pb-3">
+                                 <CardTitle className="text-lg">Connected Wallet</CardTitle>
+                <CardDescription>Connected Wallet Information</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Address:</span>
+                                     <code className="text-xs bg-muted px-2 py-1 rounded">
+                     {formatAddress(currentAccount || '')}
+                   </code>
                 </div>
-                
-                {wallet.status === "available" && (
-                  <Button
-                    onClick={() => handleConnect(wallet.id)}
-                    disabled={connecting === wallet.id}
-                    className="w-full mt-3"
-                  >
-                    {connecting === wallet.id ? "Connecting..." : "Connect"}
-                  </Button>
-                )}
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Balance:</span>
+                                     <Badge variant="outline">
+                     {formatBalance(sdupiBalance || '0')}
+                   </Badge>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Network:</span>
+                  <Badge variant="secondary">SDUPI Testnet</Badge>
+                </div>
               </CardContent>
             </Card>
-          ))}
-        </div>
-        
-        <Separator />
-        
-        <div className="text-center text-sm text-muted-foreground">
-          <p>By connecting a wallet, you agree to our Terms of Service and Privacy Policy.</p>
-        </div>
+            
+            <Button 
+              onClick={handleDisconnect} 
+              variant="destructive" 
+              className="w-full"
+            >
+              Disconnect Wallet
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {error && (
+              <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                <AlertCircle className="w-4 h-4 text-destructive" />
+                <span className="text-sm text-destructive">{error}</span>
+              </div>
+            )}
+            
+            {success && (
+              <div className="flex items-center gap-2 p-3 bg-green-500/10 border border-green-500/20 rounded-md">
+                <CheckCircle className="w-4 h-4 text-green-500" />
+                <span className="text-sm text-green-500">{success}</span>
+              </div>
+            )}
+
+            <div className="grid gap-3">
+              {walletOptions.map((wallet) => (
+                <Card 
+                  key={wallet.id} 
+                  className={`cursor-pointer transition-all hover:shadow-md ${
+                    !wallet.isAvailable ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
+                  onClick={() => wallet.isAvailable && wallet.connect()}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-primary/10 rounded-lg">
+                        {wallet.icon}
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold">{wallet.name}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {wallet.description}
+                        </p>
+                      </div>
+                      {isConnecting && wallet.id === 'metamask' && (
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            <div className="text-center text-xs text-muted-foreground">
+              <p>By connecting your wallet, you agree to our Terms of Service</p>
+              <p>and acknowledge that you have read our Privacy Policy.</p>
+            </div>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
-  )
+  );
 }

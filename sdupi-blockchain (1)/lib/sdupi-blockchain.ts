@@ -117,11 +117,14 @@ class MetaMaskProvider implements WalletProvider {
   private ethereum: any;
 
   constructor() {
-    this.ethereum = (window as any).ethereum;
+    // Only access window on client side
+    if (typeof window !== 'undefined') {
+      this.ethereum = (window as any).ethereum;
+    }
   }
 
   isAvailable(): boolean {
-    return !!this.ethereum && this.ethereum.isMetaMask;
+    return typeof window !== 'undefined' && !!this.ethereum && this.ethereum.isMetaMask;
   }
 
   async connect(): Promise<string[]> {
@@ -235,11 +238,14 @@ class PhantomProvider implements WalletProvider {
   private phantom: any;
 
   constructor() {
-    this.phantom = (window as any).phantom?.ethereum;
+    // Only access window on client side
+    if (typeof window !== 'undefined') {
+      this.phantom = (window as any).phantom?.ethereum;
+    }
   }
 
   isAvailable(): boolean {
-    return !!this.phantom;
+    return typeof window !== 'undefined' && !!this.phantom;
   }
 
   async connect(): Promise<string[]> {
@@ -316,11 +322,14 @@ class BraveProvider implements WalletProvider {
   private ethereum: any;
 
   constructor() {
-    this.ethereum = (window as any).ethereum;
+    // Only access window on client side
+    if (typeof window !== 'undefined') {
+      this.ethereum = (window as any).ethereum;
+    }
   }
 
   isAvailable(): boolean {
-    return !!this.ethereum && this.ethereum.isBraveWallet;
+    return typeof window !== 'undefined' && !!this.ethereum && this.ethereum.isBraveWallet;
   }
 
   async connect(): Promise<string[]> {
@@ -687,15 +696,34 @@ export class SDUPIBlockchain {
             difficulty: '1.2M',
             consensusRound: realtimeData.network.consensusRound || 0
           },
-          blockchain: {
-            latestBlocks: blockchainData.blockchain?.latestBlocks || [],
-            latestTransactions: blockchainData.blockchain?.latestTransactions || [],
-            mempool: {
-              pendingCount: blockchainData.blockchain?.mempool?.pendingCount || 0,
-              averageGasPrice: '22 Gwei',
-              oldestTransaction: Date.now() - Math.random() * 300000
-            }
-          },
+                      blockchain: {
+              latestBlocks: realtimeData.blockchain?.latestBlocks?.map((block: any) => ({
+                height: block.index,
+                hash: block.hash,
+                timestamp: block.timestamp,
+                transactions: block.transactions?.length || 0,
+                size: '2.4 MB',
+                miner: block.validator || 'Unknown',
+                gasUsed: '14,000,000',
+                gasLimit: '30,000,000',
+                parentHash: block.previousHash,
+                stateRoot: block.merkleRoot
+              })) || [],
+              latestTransactions: realtimeData.blockchain?.latestTransactions?.map((tx: any) => ({
+                hash: tx.hash,
+                from: tx.from,
+                to: tx.to,
+                value: '1000',
+                timestamp: tx.timestamp,
+                status: 'confirmed',
+                block: 1
+              })) || [],
+              mempool: {
+                pendingCount: realtimeData.blockchain?.mempool?.pendingCount || 0,
+                averageGasPrice: realtimeData.blockchain?.mempool?.averageGasPrice || '22 Gwei',
+                oldestTransaction: realtimeData.blockchain?.mempool?.oldestTransaction || Date.now()
+              }
+            },
           defi: {
             totalValueLocked: '100,000,000,000', // Placeholder
             liquidityPools: 10, // Placeholder
@@ -706,6 +734,7 @@ export class SDUPIBlockchain {
         
         console.log('✅ SDUPI Blockchain: Real data fetched successfully from SDUPI backend');
         console.log(`📊 Real Data: Block ${realtimeData.network.blockHeight}, ${realtimeData.network.totalTransactions} transactions`);
+        console.log('🔍 Transformed data:', JSON.stringify(this.realTimeData, null, 2));
         this.notifyDataCallbacks();
       } else {
         throw new Error('Backend API not responding properly');
